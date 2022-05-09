@@ -1,17 +1,15 @@
 package com.example.springboot;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static com.example.springboot.User.userData;
+
 @RestController
+@RequestMapping("/api")
 public class HomeController {
-
-	private static final String template = "Hello, %s!";
-	private final AtomicLong counter = new AtomicLong();
-
 
 	@GetMapping("/")
 	public String greeting(){
@@ -23,6 +21,24 @@ public class HomeController {
 		return new Home(true,"Welcome to the home page");
 	}
 
+	@GetMapping("/user/{userId}")
+	public String getUserId(@PathVariable String userId){
+		return "Your user id is " + userId;
+	}
+
+	@PostMapping("/register")
+	public Home createUser(@RequestBody User data){
+		userData.add(new User(data.name,data.email,data.password));
+
+		for (User d:
+			 userData) {
+			System.out.println(d.email);
+			System.out.println(d.password);
+			System.out.println(d.name);
+
+		}
+		return new Home(true,"User added");
+	}
 
 
 }
