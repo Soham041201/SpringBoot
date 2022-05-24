@@ -1,15 +1,19 @@
 package com.example.springboot;
 
+import com.example.springboot.models.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static com.example.springboot.User.userData;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class HomeController {
+
+	@Autowired
+	UserRepository repo;
 
 	@GetMapping("/")
 	public String greeting(){
@@ -17,28 +21,51 @@ public class HomeController {
 	}
 
 	@GetMapping("/home")
-	public Home home(){
-		return new Home(true,"Welcome to the home page");
+	public ResponseEntity<Home> home(@RequestHeader String Authorization){
+		String id = Authorization.split("Bearer")[1].trim();
+		User user = repo.findByid(id);
+		if(user.isLogin){
+			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Welcome to our project " + user.name.toUpperCase()+ '!'));
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Please login to view this"));
 	}
 
-	@GetMapping("/user/{userId}")
-	public String getUserId(@PathVariable String userId){
-		return "Your user id is " + userId;
+	@GetMapping("/logout/{userId}")
+	public ResponseEntity<Home> logoutUser(@PathVariable String userId){
+		User user = repo.findByid(userId);
+		if(user != null && user.isLogin){
+			user.isLogin = false;
+			repo.save(user);
+			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"User logged out"));
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged out"));
 	}
 
 	@PostMapping("/register")
-	public Home createUser(@RequestBody User data){
-		userData.add(new User(data.name,data.email,data.password));
+	public ResponseEntity<Home> createUser(@RequestBody User data){
 
-		for (User d:
-			 userData) {
-			System.out.println(d.email);
-			System.out.println(d.password);
-			System.out.println(d.name);
-
-		}
-		return new Home(true,"User added");
+		if(repo.findByEmail(data.email) != null){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already exists"));
+		};
+		User userModel = new User(data.name, data.email, data.password,true);
+		repo.save(userModel);
+		System.out.println(userModel);
+	if(userModel != null){
+		return ResponseEntity.status(HttpStatus.OK).body(new Home(true,userModel.id));
 	}
-
-
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Error occurred"));
+	}
+	@PostMapping("/login")
+	public ResponseEntity<Home> getUsers(@RequestBody Login data){
+		User user = repo.findByEmail(data.email);
+	if(user.isLogin){
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged in"));
+	}
+		if(user.password.equals(data.password)){
+			user.isLogin = true;
+			repo.save(user);
+			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Logged in successfully" + user.id));
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Incorrect password"));
+	}
 }

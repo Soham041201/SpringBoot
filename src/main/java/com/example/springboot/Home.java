@@ -6,8 +6,8 @@ public class Home {
 
 
     public Home(boolean status, String message){
-        this.status = status;
-        this.message = message;
+        Home.status = status;
+        Home.message = message;
     }
 
 
