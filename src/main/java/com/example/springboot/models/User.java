@@ -7,17 +7,20 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
     @Id
     public String id;
-
     public boolean isLogin = false;
     public String name;
     public String email;
     public String password;
 
     public User(String name, String email, String password, Boolean isLogin){
-    super();
+        super();
         this.email =email;
         this.password = password;
         this.name = name;
         this.isLogin = isLogin;
+    }
+
+    public String getUsername() {
+        return name;
     }
 }
