@@ -1,8 +1,6 @@
 package com.example.springboot.models;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 @Document("usermaster")
 public class User {
     @Id
@@ -11,7 +9,6 @@ public class User {
     public String name;
     public String email;
     public String password;
-
     public User(String name, String email, String password, Boolean isLogin){
         super();
         this.email =email;
@@ -19,7 +16,6 @@ public class User {
         this.name = name;
         this.isLogin = isLogin;
     }
-
     public String getUsername() {
         return name;
     }

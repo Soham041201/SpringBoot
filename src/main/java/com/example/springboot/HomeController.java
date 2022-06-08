@@ -30,7 +30,6 @@ public class HomeController {
 		boolean isValid = JsonToken.verifyToken(token);
 
 		User user = repo.findByid(id);
-
 		if(user.isLogin){
 			if(isValid){
 				return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Welcome to our project " + user.name.toUpperCase()+ '!'));
@@ -63,11 +62,11 @@ public class HomeController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already exists"));
 		};
 		User userModel = new User(data.name, data.email, data.password,true);
-
 		repo.save(userModel);
+		String token = JsonToken.generateToken(userModel.email,userModel.password);
 	if(userModel != null){
 
-		return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"New user created" + userModel.id));
+		return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"New user created" ,token, userModel.id));
 	}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Error occurred"));
 	}
@@ -75,13 +74,13 @@ public class HomeController {
 	public ResponseEntity<Home> getUsers(@RequestBody Login data){
 		User user = repo.findByEmail(data.email);
 	if(user.isLogin){
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged in " + user.id));
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged in ", user.id));
 	}
 		if(user.password.equals(data.password)){
 			user.isLogin = true;
 			repo.save(user);
 			String token = JsonToken.generateToken(user.email,user.password);
-			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Logged in successfully " + "token " + " ====================== " + token + " userId"   + " ================= "+ user.id));
+			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Logged in successfully",token,user.id));
 
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Incorrect password"));
@@ -90,7 +89,7 @@ public class HomeController {
 	public ResponseEntity<Home> getOTP(@RequestBody Login data){
 		User user = repo.findByEmail(data.email);
 		if(user.isLogin){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged in " + user.id));
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"User already logged in ", user.id));
 		}
 		if(user.password.equals(data.password)){
 			user.isLogin = true;
@@ -98,7 +97,7 @@ public class HomeController {
 			String token = JsonToken.generateTokenForOTP(user.email,user.password);
 			Random random = new Random();
 			long otp = random.nextInt(1000);
-			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Your token is  " + "token : " + " ====================== " + token + "and your otp is"   + " ================= "+ otp));
+			return ResponseEntity.status(HttpStatus.OK).body(new Home(true,"Your otp is " + otp,token,user.id));
 
 		}
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Home(false,"Incorrect password"));

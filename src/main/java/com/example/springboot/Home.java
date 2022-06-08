@@ -1,20 +1,32 @@
 package com.example.springboot;
 
 public class Home {
-    private static boolean status;
-    private static String message;
+     public boolean status;
+     public String message;
+     public String token;
+     public String userId;
+
+
+    public Home(boolean status, String message, String token, String userId) {
+        this.status = status;
+        this.message = message;
+        this.token = token;
+        this.userId = userId;
+    }
+    public Home(boolean status,String message,String userId) {
+        this.status = status;
+        this.message = message;
+        this.userId = userId;
+    }
 
 
     public Home(boolean status, String message){
-        Home.status = status;
-        Home.message = message;
+        this.status = status;
+        this.message = message;
     }
 
 
-    public String getMessage(){
-       return message;
-    }
-    public boolean getStatus(){
-        return status;
-    }
+
+
+
 }
